@@ -1,7 +1,7 @@
+*.checkpoints/
+*.data/
+*.lightning_logs/
+*.idea/
 *.DS_Store
 *__pycache__
 *.env
-*.lightning_logs/
-*.checkpoints/
-*.idea/
-*.data/
