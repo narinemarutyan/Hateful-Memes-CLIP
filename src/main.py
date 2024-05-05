@@ -10,6 +10,7 @@ from .train import TrainCLIP
 
 
 def main(args):
+    # Create Dataset
     dataset_train = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
                                         split='train', image_size=args.image_size)
     dataset_val = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
@@ -17,7 +18,7 @@ def main(args):
     dataset_test = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
                                        split='test', image_size=args.image_size)
 
-    # Load dataloader
+    # Load Dataloader
     num_cpus = 1
     collator = Caller(args)
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=num_cpus,
@@ -50,17 +51,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Parse Training Arguments")
     parser.add_argument("--image_path", type=str, help="Path to images directory")
     parser.add_argument("--csv_path", type=str, help="Path to CSV file")
-    parser.add_argument("-i", "--image_size", type=int, help="Image size", default=224)
-    parser.add_argument("-c", "--clip_pretrained_model", type=str, help="Pretrained model for CLIP",
+    parser.add_argument("--image_size", type=int, help="Image size", default=224)
+    parser.add_argument("--clip_pretrained_model", type=str, help="Pretrained model for CLIP",
                         default="openai/clip-vit-base-patch32")
-    parser.add_argument("-m", "--map_dim", type=int, help="Map dimension", default=768)
-    parser.add_argument("-n", "--num_pre_output_layers", type=int, help="Number of pre-output layers", default=1)
-    parser.add_argument("-d", "--drop_probs", nargs='+', type=float, help="Dropout probabilities",
+    parser.add_argument("--map_dim", type=int, help="Map dimension", default=768)
+    parser.add_argument("--num_pre_output_layers", type=int, help="Number of pre-output layers", default=1)
+    parser.add_argument("--drop_probs", nargs='+', type=float, help="Dropout probabilities",
                         default=[0.1, 0.4, 0.2])
-    parser.add_argument("-g", "--gpus", nargs='+', type=int, help="GPUs to use", default=[0])
+    parser.add_argument("--gpus", nargs='+', type=int, help="GPUs to use", default=[0])
     parser.add_argument("--max_steps", type=int, help="Maximum number of steps", default=-1)
     parser.add_argument("--max_epochs", type=int, help="Maximum number of epochs", default=-1)
-    parser.add_argument("-b", "--batch_size", type=int, help="Batch size", default=9)
+    parser.add_argument("--batch_size", type=int, help="Batch size", default=9)
     parser.add_argument("--lr", type=float, help="Learning rate", default=1e-4)
     parser.add_argument("--weight_image_loss", type=float, help="Weight for image loss", default=1.0)
     parser.add_argument("--weight_text_loss", type=float, help="Weight for text loss", default=1.0)
