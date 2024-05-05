@@ -32,6 +32,7 @@ poetry install --with dev
 
 
 ## Fine Tuning CLIP
+Example of command
 ```bash
-python -m src.main
+python -m src.main --image_size 224 --max_epochs -1 --batch_size 9 --lr 1e-4
 ```

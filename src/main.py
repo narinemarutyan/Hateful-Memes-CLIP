@@ -4,9 +4,9 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import DataLoader
 
-from caller import Caller
-from src.datasets import HatefulMemesDataset
-from src.train import Classify
+from .caller import Caller
+from .datasets import HatefulMemesDataset
+from .train import Classify
 
 
 def create_model(args):
