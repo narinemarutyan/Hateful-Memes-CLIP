@@ -116,5 +116,5 @@ if __name__ == "__main__":
     json_dir = '../data/label'
     img_folder = '../../data/img'
     saved_csv_path = 'hateful_memes_expanded.csv'
-    ofa_checkpoint = 'checkpoints.pt' # captioning checkpoint
+    ofa_checkpoint = 'checkpoints.pt'
     generate_captions(json_dir,img_folder, saved_csv_path,ofa_checkpoint)

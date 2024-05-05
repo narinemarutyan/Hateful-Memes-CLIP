@@ -2,10 +2,28 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import DataLoader
 
-from datasets import CustomCollator, load_dataset
-from engine import create_model
+from src.collator import CustomCollator
+from src.datasets import HatefulMemesDataset
+from src.train import CLIPClassifier
 
+def create_model(args, fine_grained_labels):
+    compute_fine_grained_metrics = True
+    model = CLIPClassifier(args=args, fine_grained_labels=fine_grained_labels,
+                           compute_fine_grained_metrics=compute_fine_grained_metrics)
 
+    return model
+def load_dataset(args, split):
+    if args.dataset == 'original':
+        image_folder = 'data/hateful_memes/img'
+    elif args.dataset == 'masked':
+        image_folder = 'data/hateful_memes_masked/'
+    elif args.dataset == 'inpainted':
+        image_folder = 'data/hateful_memes_inpainted/'
+
+    dataset = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder=image_folder, split=split,
+                                  labels=args.labels, image_size=args.image_size)
+
+    return dataset
 class Alissa:
     def __init__(self, args_dict):
         for key, value in args_dict.items():
@@ -92,3 +110,6 @@ if __name__ == '__main__':
     args = Alissa(args_dataset)
     print('start')
     main(args)
+
+
+

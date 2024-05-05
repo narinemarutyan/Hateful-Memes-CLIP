@@ -6,24 +6,31 @@
 
 The Structure Of The Data Should Look Like This:
 ```
-data/
-├── hateful_memes
-|                ├──img/
-│                     ├── 1254.png
-│                     ├── 1377.png
-│                     └── ...
-                ├── hateful_memes_expanded.csv
-
-
-
-poetry install --group dev
+└──data
+    └──hateful_memes
+        ├──img
+            ├── 1254.png
+            ├── 1377.png
+            └── 
+        └──hateful_memes_expanded.csv
 ```
+
+## Setup 
+To setup the poetry environment you should have poetry installed on your system and then run the following commands
+```bash
+poetry install
+```
+If you want to do the preprocessing you should install dev dependencies as well by running:
+```bash
+poetry install --dev
+```
+
 ## Preprocessing
 
 ### OFA-sys
+
+
+## Fine Tuning CLIP
 ```bash
-git clone git@github.com:OFA-Sys/OFA.git
-```
-```bash
-python preprocess:main
+python -m src.main
 ```

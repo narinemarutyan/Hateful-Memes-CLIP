@@ -185,8 +185,9 @@ class CLIPClassifier(pl.LightningModule):
             image_features = self.text_map(image_features)
         else:
             text_features = \
-            self.text_encoder(input_ids=batch['input_ids'], attention_mask=batch['attention_mask'])["hidden_states"][
-                -1][:, 0, :]
+                self.text_encoder(input_ids=batch['input_ids'], attention_mask=batch['attention_mask'])[
+                    "hidden_states"][
+                    -1][:, 0, :]
             image_features = self.text_map(image_features)
 
         if self.text_encoder_name == 'clip':
@@ -194,8 +195,9 @@ class CLIPClassifier(pl.LightningModule):
                                               attention_mask=batch['attention_mask']).pooler_output
         else:
             text_features = \
-            self.text_encoder(input_ids=batch['input_ids'], attention_mask=batch['attention_mask'])["hidden_states"][
-                -1][:, 0, :]
+                self.text_encoder(input_ids=batch['input_ids'], attention_mask=batch['attention_mask'])[
+                    "hidden_states"][
+                    -1][:, 0, :]
         text_features = self.text_map(text_features)
 
         if self.caption_mode.startswith('parallel'):
@@ -638,9 +640,3 @@ class CLIPClassifier(pl.LightningModule):
         return optimizer
 
 
-def create_model(args, fine_grained_labels):
-    compute_fine_grained_metrics = True
-    model = CLIPClassifier(args=args, fine_grained_labels=fine_grained_labels,
-                           compute_fine_grained_metrics=compute_fine_grained_metrics)
-
-    return model
