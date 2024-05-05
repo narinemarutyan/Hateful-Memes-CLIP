@@ -12,7 +12,7 @@ class HatefulMemesDataset(Dataset):
 
     def __init__(self, image_path: str, csv_path: str, split: str, image_size: Optional[int] = 224) -> None:
         """
-        Initialize the Hateful Memes Dataset
+        Initializes the Hateful Memes Dataset
 
         Parameters
         ----------
@@ -24,6 +24,10 @@ class HatefulMemesDataset(Dataset):
             The dataset split like train, val or test
         image_size : Optional[int] = 224
             The size to which the images should be resized
+
+        Returns
+        -------
+        out : None
         """
         super(HatefulMemesDataset, self).__init__()
         self.image_path = image_path

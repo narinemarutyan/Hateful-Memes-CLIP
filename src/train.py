@@ -1,4 +1,5 @@
 import copy
+from typing import Dict
 
 import pytorch_lightning as pl
 import torch
@@ -8,9 +9,24 @@ import torchmetrics
 from transformers import CLIPModel
 
 
-class Classify(pl.LightningModule):
+class TrainCLIP(pl.LightningModule):
+    """
+    A module that trains and evaluates CLIP model with a specific pipeline
+    """
 
     def __init__(self, args):
+        """
+        Initialize the TrainCLIP Class for Training
+
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Arguments passed to the TrainCLIP class
+
+        Returns
+        -------
+        out : None
+        """
         super().__init__()
 
         self.map_dim = args.map_dim
@@ -60,7 +76,6 @@ class Classify(pl.LightningModule):
 
         self.cross_entropy_loss = torch.nn.BCEWithLogitsLoss(reduction='mean')
 
-        # frezze
         if True:
             for _, p in self.image_encoder.named_parameters():
                 p.requires_grad_(False)
@@ -69,8 +84,19 @@ class Classify(pl.LightningModule):
             for _, p in self.text_encoder.named_parameters():
                 p.requires_grad_(False)
 
-    def forward(self, batch):
+    def forward(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """
+        Forward pass for generating predictions from the model
 
+        Parameters
+        ----------
+        batch : Dict[str, torch.Tensor]
+            Input batch
+
+        Returns
+        -------
+        out : torch.Tensor
+        """
         image_features = self.text_encoder(input_ids=batch['input_ids_caption'],
                                            attention_mask=batch['attention_mask_caption']).pooler_output
         image_features = self.text_map(image_features)
@@ -91,8 +117,19 @@ class Classify(pl.LightningModule):
 
         return preds
 
-    def common_step(self, batch, batch_idx, calling_function='validation'):
+    def common_step(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        Compute the loss and update the metrics based on the predictions
 
+        Parameters
+        ----------
+        batch : Dict[str, torch.Tensor]
+            Input batch
+
+        Returns
+        -------
+        out : Dict[str, torch.Tensor]
+        """
         image_features = self.text_encoder(input_ids=batch['input_ids_caption'],
                                            attention_mask=batch['attention_mask_caption']).pooler_output
         image_features = self.text_map(image_features)
@@ -118,8 +155,20 @@ class Classify(pl.LightningModule):
 
         return output
 
-    def training_step(self, batch, batch_idx):
-        output = self.common_step(batch, batch_idx, calling_function='training')
+    def training_step(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """
+        Performs one training step
+
+        Parameters
+        ----------
+        batch : Dict[str, torch.Tensor]
+            Input batch
+
+        Returns
+        -------
+        out : torch.Tensor
+        """
+        output = self.common_step(batch)
 
         total_loss = output['loss']
 
@@ -130,8 +179,20 @@ class Classify(pl.LightningModule):
 
         return total_loss
 
-    def validation_step(self, batch, batch_idx):
-        output = self.common_step(batch, batch_idx, calling_function='validation')
+    def validation_step(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """
+        Performs one validation step
+
+        Parameters
+        ----------
+        batch : Dict[str, Tensor]
+            The batch data containing inputs and labels.
+
+        Returns
+        -------
+        out : torch.Tensor
+        """
+        output = self.common_step(batch)
 
         total_loss = output['loss']
 
@@ -142,25 +203,30 @@ class Classify(pl.LightningModule):
 
         return total_loss
 
-    def test_step(self, batch, batch_idx, dataloader_idx):
-        prefix_map = {
-            0: 'dev',
-            1: 'test'
-        }
-        prefix = prefix_map[dataloader_idx]
-        if dataloader_idx == 0:
-            calling_function = 'validation'
-        elif dataloader_idx == 1:
-            calling_function = 'training'
+    def test_step(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        Performs test step
 
-        output = self.common_step(batch, batch_idx, calling_function=calling_function)
+        Parameters
+        ----------
+        batch : Dict[str, Tensor]
+            The batch data containing inputs and labels.
 
-        self.log(f'{prefix}/accuracy', output['accuracy'])
-        self.log(f'{prefix}/auroc', output['auroc'])
+        Returns
+        -------
+        out : Dict[str, torch.Tensor]
+        """
+        output = self.common_step(batch)
+
+        self.log(f'accuracy', output['accuracy'])
+        self.log(f'auroc', output['auroc'])
 
         return output
 
     def on_train_epoch_end(self):
+        """
+        Performs test step
+        """
         self.acc.reset()
         self.auroc.reset()
         self.precision_score.reset()
@@ -168,7 +234,9 @@ class Classify(pl.LightningModule):
         self.f1.reset()
 
     def on_validation_epoch_end(self):
-
+        """
+        Count metrics on Validation epoch end
+        """
         self.acc.reset()
         self.auroc.reset()
         self.precision_score.reset()
@@ -176,6 +244,9 @@ class Classify(pl.LightningModule):
         self.f1.reset()
 
     def on_test_epoch_end(self):
+        """
+        Count metrics on Test epoch end
+        """
         self.acc.reset()
         self.auroc.reset()
         self.precision_score.reset()
@@ -183,6 +254,9 @@ class Classify(pl.LightningModule):
         self.f1.reset()
 
     def configure_optimizers(self):
+        """
+        Sets up the optimizer for the model
+        """
         param_dicts = [
             {"params": [p for n, p in self.named_parameters() if p.requires_grad]}
         ]

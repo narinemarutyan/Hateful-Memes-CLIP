@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from .caller import Caller
 from .datasets import HatefulMemesDataset
-from .train import Classify
+from .train import TrainCLIP
 
 
 def load(args, split):
@@ -34,7 +34,7 @@ def main(args):
 
     # Create model
     seed_everything(28, workers=True)
-    model = Classify(args=args)
+    model = TrainCLIP(args=args)
 
     num_params = {f'param_{n}': p.numel() for n, p in model.named_parameters() if p.requires_grad}
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}', monitor="val/auroc",
