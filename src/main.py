@@ -9,20 +9,13 @@ from .datasets import HatefulMemesDataset
 from .train import TrainCLIP
 
 
-def load(args, split):
-    dataset = HatefulMemesDataset(image_folder='data/hateful_memes/img',
-                                  csv_folder='data/hateful_memes/hateful_memes_expanded.csv',
-                                  split=split,
-                                  image_size=args.image_size)
-
-    return dataset
-
-
 def main(args):
-    # Load dataset
-    dataset_train = load(args=args, split='train')
-    dataset_val = load(args=args, split='dev')
-    dataset_test = load(args=args, split='test')
+    dataset_train = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
+                                        split='train', image_size=args.image_size)
+    dataset_val = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
+                                      split='val', image_size=args.image_size)
+    dataset_test = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
+                                       split='test', image_size=args.image_size)
 
     # Load dataloader
     num_cpus = 1
@@ -36,7 +29,6 @@ def main(args):
     seed_everything(28, workers=True)
     model = TrainCLIP(args=args)
 
-    num_params = {f'param_{n}': p.numel() for n, p in model.named_parameters() if p.requires_grad}
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}', monitor="val/auroc",
                                           mode='max', verbose=True, save_weights_only=True, save_top_k=1,
                                           save_last=False)
@@ -55,7 +47,9 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Description of your program")
+    parser = argparse.ArgumentParser(description="Parse Training Arguments")
+    parser.add_argument("--image_path", type=str, help="Path to images directory")
+    parser.add_argument("--csv_path", type=str, help="Path to CSV file")
     parser.add_argument("-i", "--image_size", type=int, help="Image size", default=224)
     parser.add_argument("-c", "--clip_pretrained_model", type=str, help="Pretrained model for CLIP",
                         default="openai/clip-vit-base-patch32")

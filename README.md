@@ -34,5 +34,5 @@ poetry install --with dev
 ## Fine Tuning CLIP
 Example of command
 ```bash
-python -m src.main --image_size 224 --max_epochs -1 --batch_size 9 --lr 1e-4
+python -m src.main --image_path data/hateful_memes/img --csv_path data/hateful_memes/hateful_memes_expanded.csv --image_size 224 --max_epochs -1 --batch_size 9 --lr 1e-4
 ```
