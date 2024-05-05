@@ -16,13 +16,14 @@ The Structure Of The Data Should Look Like This:
 ```
 
 ## Setup 
+
 To setup the poetry environment you should have poetry installed on your system and then run the following commands
 ```bash
 poetry install
 ```
 If you want to do the preprocessing you should install dev dependencies as well by running:
 ```bash
-poetry install --dev
+poetry install --with dev
 ```
 
 ## Preprocessing

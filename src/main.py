@@ -1,68 +1,56 @@
+import argparse
+
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import DataLoader
 
-from src.collator import CustomCollator
+from caller import Caller
 from src.datasets import HatefulMemesDataset
-from src.train import CLIPClassifier
+from src.train import Classify
 
-def create_model(args, fine_grained_labels):
-    compute_fine_grained_metrics = True
-    model = CLIPClassifier(args=args, fine_grained_labels=fine_grained_labels,
-                           compute_fine_grained_metrics=compute_fine_grained_metrics)
+
+def create_model(args):
+    model = Classify(args=args)
 
     return model
-def load_dataset(args, split):
-    if args.dataset == 'original':
-        image_folder = 'data/hateful_memes/img'
-    elif args.dataset == 'masked':
-        image_folder = 'data/hateful_memes_masked/'
-    elif args.dataset == 'inpainted':
-        image_folder = 'data/hateful_memes_inpainted/'
 
+
+def load(args, split):
+    image_folder = 'data/hateful_memes/img'
     dataset = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder=image_folder, split=split,
-                                  labels=args.labels, image_size=args.image_size)
+                                  image_size=args.image_size)
 
     return dataset
-class Alissa:
-    def __init__(self, args_dict):
-        for key, value in args_dict.items():
-            setattr(self, key, value)
 
 
 def main(args):
     # Load dataset
-    dataset_train = load_dataset(args=args, split='train')
-    dataset_val = load_dataset(args=args, split='dev')
-    dataset_test = load_dataset(args=args, split='test')
-    # dataset_val_unseen = load_dataset(args=args, split='dev_unseen')
-    # dataset_test_unseen = load_dataset(args=args, split='test_unseen')
+    dataset_train = load(args=args, split='train')
+    dataset_val = load(args=args, split='dev')
+    dataset_test = load(args=args, split='test')
 
     # Load dataloader
     num_cpus = 1
-    collator = CustomCollator(args, dataset_train.fine_grained_labels)
+    collator = Caller(args)
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=num_cpus,
                                   collate_fn=collator)
     dataloader_val = DataLoader(dataset_val, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
     dataloader_test = DataLoader(dataset_test, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
-    # dataloader_val_unseen = DataLoader(dataset_val_unseen, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
-    # dataloader_test_unseen = DataLoader(dataset_test_unseen, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
 
     # Create model
     seed_everything(28, workers=True)
-    model = create_model(args, dataset_train.fine_grained_labels)
+    model = create_model(args)
 
     num_params = {f'param_{n}': p.numel() for n, p in model.named_parameters() if p.requires_grad}
-    checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}',
-                                          monitor="val/auroc", mode='max', verbose=True, save_weights_only=True,
-                                          save_top_k=1, save_last=False)
+    checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}', monitor="val/auroc",
+                                          mode='max', verbose=True, save_weights_only=True, save_top_k=1,
+                                          save_last=False)
 
     # Initialize Trainer
-    trainer = Trainer(max_epochs=args.max_epochs, max_steps=args.max_steps, gradient_clip_val=args.gradient_clip_val,
-                      log_every_n_steps=args.log_every_n_steps,
-                      val_check_interval=args.val_check_interval,
-                      callbacks=[checkpoint_callback],
-                      limit_train_batches=args.limit_train_batches, limit_val_batches=args.limit_val_batches,
+    trainer = Trainer(max_epochs=args.max_epochs, max_steps=args.max_steps, gradient_clip_val=0.1,
+                      log_every_n_steps=50, val_check_interval=1.0,
+                      strategy='ddp_find_unused_parameters_true', callbacks=[checkpoint_callback],
+                      limit_train_batches=1.0, limit_val_batches=1.0,
                       deterministic=True)
 
     # Train and test the model
@@ -72,44 +60,22 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args_dataset = {
-        "dataset": "original",
-        "labels": "original",
-        "image_size": 224,
-        "multilingual_tokenizer_path": "none",
-        "clip_pretrained_model": "openai/clip-vit-base-patch32",
-        "local_pretrained_weights": "none",
-        "caption_mode": "none",
-        "use_pretrained_map": False,
-        "num_mapping_layers": 1,
-        "map_dim": 768,
-        "fusion": "align",  # default value of this is clip but no case for clip  
-        "num_pre_output_layers": 1,
-        "drop_probs": [0.1, 0.4, 0.2],
-        "image_encoder": "clip",
-        "text_encoder": "clip",
-        "freeze_image_encoder": True,
-        "freeze_text_encoder": True,
-        "remove_matches": False,
-        "gpus": [0],
-        "limit_train_batches": 1.0,
-        "limit_val_batches": 1.0,
-        "max_steps": -1,
-        "max_epochs": -1,
-        "log_every_n_steps": 50,
-        "val_check_interval": 1.0,
-        "batch_size": 9,
-        "lr": 1e-4,
-        "weight_image_loss": 1.0,
-        "weight_text_loss": 1.0,
-        "weight_fine_grained_loss": 1.0,
-        "weight_super_loss": 1.0,
-        "weight_decay": 1e-4,
-        "gradient_clip_val": 0.1
-    }
-    args = Alissa(args_dataset)
-    print('start')
+    parser = argparse.ArgumentParser(description="Description of your program")
+    parser.add_argument("-i", "--image_size", type=int, help="Image size", default=224)
+    parser.add_argument("-c", "--clip_pretrained_model", type=str, help="Pretrained model for CLIP",
+                        default="openai/clip-vit-base-patch32")
+    parser.add_argument("-m", "--map_dim", type=int, help="Map dimension", default=768)
+    parser.add_argument("-n", "--num_pre_output_layers", type=int, help="Number of pre-output layers", default=1)
+    parser.add_argument("-d", "--drop_probs", nargs='+', type=float, help="Dropout probabilities",
+                        default=[0.1, 0.4, 0.2])
+    parser.add_argument("-g", "--gpus", nargs='+', type=int, help="GPUs to use", default=[0])
+    parser.add_argument("--max_steps", type=int, help="Maximum number of steps", default=-1)
+    parser.add_argument("--max_epochs", type=int, help="Maximum number of epochs", default=-1)
+    parser.add_argument("-b", "--batch_size", type=int, help="Batch size", default=9)
+    parser.add_argument("--lr", type=float, help="Learning rate", default=1e-4)
+    parser.add_argument("--weight_image_loss", type=float, help="Weight for image loss", default=1.0)
+    parser.add_argument("--weight_text_loss", type=float, help="Weight for text loss", default=1.0)
+    parser.add_argument("--weight_decay", type=float, help="Weight decay", default=1e-4)
+
+    args = parser.parse_args()
     main(args)
-
-
-
