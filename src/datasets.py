@@ -1,19 +1,15 @@
-import os
-
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
 
 
 class HatefulMemesDataset(Dataset):
-    def __init__(self, root_folder, image_folder, split='train', image_size=224):
+    def __init__(self, image_folder, csv_folder, split, image_size=224):
         super(HatefulMemesDataset, self).__init__()
-        self.root_folder = root_folder
         self.image_folder = image_folder
         self.split = split
         self.image_size = image_size
-        self.info_file = os.path.join(root_folder, 'hateful_memes_expanded.csv')
-        self.df = pd.read_csv(self.info_file)
+        self.df = pd.read_csv(csv_folder)
         self.df = self.df[self.df['split'] == self.split].reset_index(drop=True)
 
     def __len__(self):

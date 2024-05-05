@@ -9,15 +9,10 @@ from .datasets import HatefulMemesDataset
 from .train import Classify
 
 
-def create_model(args):
-    model = Classify(args=args)
-
-    return model
-
-
 def load(args, split):
-    image_folder = 'data/hateful_memes/img'
-    dataset = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder=image_folder, split=split,
+    dataset = HatefulMemesDataset(image_folder='data/hateful_memes/img',
+                                  csv_folder='data/hateful_memes/hateful_memes_expanded.csv',
+                                  split=split,
                                   image_size=args.image_size)
 
     return dataset
@@ -39,7 +34,7 @@ def main(args):
 
     # Create model
     seed_everything(28, workers=True)
-    model = create_model(args)
+    model = Classify(args=args)
 
     num_params = {f'param_{n}': p.numel() for n, p in model.named_parameters() if p.requires_grad}
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}', monitor="val/auroc",
@@ -49,7 +44,7 @@ def main(args):
     # Initialize Trainer
     trainer = Trainer(max_epochs=args.max_epochs, max_steps=args.max_steps, gradient_clip_val=0.1,
                       log_every_n_steps=50, val_check_interval=1.0,
-                      strategy='ddp_find_unused_parameters_true', callbacks=[checkpoint_callback],
+                      callbacks=[checkpoint_callback],
                       limit_train_batches=1.0, limit_val_batches=1.0,
                       deterministic=True)
 
