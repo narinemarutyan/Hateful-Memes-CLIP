@@ -1,24 +1,33 @@
+#!/usr/bin/env python
+
 import argparse
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
-from .caller import Caller
-from .datasets import HatefulMemesDataset
-from .train import TrainCLIP
+from src.caller import Caller
+from src.datasets import HatefulMemesDataset
+from src.train import TrainCLIP
 
 
 def main(args):
-    # Create Dataset
-    dataset_train = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
-                                        split='train', image_size=args.image_size)
-    dataset_val = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
-                                      split='val', image_size=args.image_size)
-    dataset_test = HatefulMemesDataset(image_path=args.image_path, csv_path=args.csv_path,
-                                       split='test', image_size=args.image_size)
+    # Load dataset
+    dataset_train = HatefulMemesDataset(image_path=args.image_path,
+                                        csv_path=args.csv_path,
+                                        split='train',
+                                        image_size=args.image_size)
+    dataset_val = HatefulMemesDataset(image_path=args.image_path,
+                                      csv_path=args.csv_path,
+                                      split='train',
+                                      image_size=args.image_size)
+    dataset_test = HatefulMemesDataset(image_path=args.image_path,
+                                       csv_path=args.csv_path,
+                                       split='train',
+                                       image_size=args.image_size)
 
-    # Load Dataloader
+    # Load dataloader
     num_cpus = 1
     collator = Caller(args)
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=num_cpus,
@@ -30,14 +39,18 @@ def main(args):
     seed_everything(28, workers=True)
     model = TrainCLIP(args=args)
 
-    checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename='-{epoch:02d}', monitor="val/auroc",
-                                          mode='max', verbose=True, save_weights_only=True, save_top_k=1,
-                                          save_last=False)
+    # Initialize Wandb logger
+    wandb_logger = WandbLogger(project="meme-v2", config=args)
+    num_params = {f'param_{n}': p.numel() for n, p in model.named_parameters() if p.requires_grad}
+    wandb_logger.experiment.config.update(num_params)
+    checkpoint_callback = ModelCheckpoint(dirpath='checkpoints', filename=wandb_logger.experiment.name + '-{epoch:02d}',
+                                          monitor="val/auroc", mode='max', verbose=True, save_weights_only=True,
+                                          save_top_k=1, save_last=False)
 
     # Initialize Trainer
     trainer = Trainer(max_epochs=args.max_epochs, max_steps=args.max_steps, gradient_clip_val=0.1,
-                      log_every_n_steps=50, val_check_interval=1.0,
-                      callbacks=[checkpoint_callback],
+                      logger=wandb_logger, log_every_n_steps=50, val_check_interval=1.0,
+                      strategy='ddp_find_unused_parameters_true', callbacks=[checkpoint_callback],
                       limit_train_batches=1.0, limit_val_batches=1.0,
                       deterministic=True)
 

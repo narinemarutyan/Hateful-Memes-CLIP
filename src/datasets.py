@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+import os
 
 import pandas as pd
 from PIL import Image
@@ -9,8 +9,7 @@ class HatefulMemesDataset(Dataset):
     """
     A dataset class for loading and transforming the Hateful Memes dataset
     """
-
-    def __init__(self, image_path: str, csv_path: str, split: str, image_size: Optional[int] = 224) -> None:
+    def __init__(self, image_path, csv_path, split='train', image_size=224):
         """
         Initializes the Hateful Memes Dataset
 
@@ -36,7 +35,7 @@ class HatefulMemesDataset(Dataset):
         self.df = pd.read_csv(csv_path)
         self.df = self.df[self.df['split'] == self.split].reset_index(drop=True)
 
-    def __len__(self) -> int:
+    def __len__(self):
         """
         Returns the number of items in the dataset
 
@@ -46,7 +45,7 @@ class HatefulMemesDataset(Dataset):
         """
         return len(self.df)
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx):
         """
         Retrieves the dataset item at the specified index
 
@@ -69,3 +68,6 @@ class HatefulMemesDataset(Dataset):
         sample['caption'] = row['caption']
 
         return sample
+
+
+

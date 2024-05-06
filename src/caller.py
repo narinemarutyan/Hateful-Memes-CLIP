@@ -1,5 +1,3 @@
-from typing import List, Dict, Any
-
 import torch
 from transformers import CLIPProcessor, CLIPTokenizer
 
@@ -25,7 +23,7 @@ class Caller(object):
         self.image_processor = CLIPProcessor.from_pretrained(args.clip_pretrained_model)
         self.text_processor = CLIPTokenizer.from_pretrained(args.clip_pretrained_model)
 
-    def __call__(self, batch: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
+    def __call__(self, batch):
         """
         Processes a batch of data dictionaries containing images, texts, captions, and labels
 

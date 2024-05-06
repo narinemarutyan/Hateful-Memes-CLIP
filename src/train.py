@@ -1,5 +1,4 @@
 import copy
-from typing import Dict
 
 import pytorch_lightning as pl
 import torch
@@ -13,7 +12,6 @@ class TrainCLIP(pl.LightningModule):
     """
     A module that trains and evaluates CLIP model with a specific pipeline
     """
-
     def __init__(self, args):
         """
         Initialize the TrainCLIP Class for Training
@@ -76,6 +74,7 @@ class TrainCLIP(pl.LightningModule):
 
         self.cross_entropy_loss = torch.nn.BCEWithLogitsLoss(reduction='mean')
 
+        # frezze
         if True:
             for _, p in self.image_encoder.named_parameters():
                 p.requires_grad_(False)
@@ -84,7 +83,7 @@ class TrainCLIP(pl.LightningModule):
             for _, p in self.text_encoder.named_parameters():
                 p.requires_grad_(False)
 
-    def forward(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(self, batch):
         """
         Forward pass for generating predictions from the model
 
@@ -117,7 +116,7 @@ class TrainCLIP(pl.LightningModule):
 
         return preds
 
-    def common_step(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def common_step(self, batch, batch_idx, calling_function='validation'):
         """
         Compute the loss and update the metrics based on the predictions
 
@@ -155,7 +154,7 @@ class TrainCLIP(pl.LightningModule):
 
         return output
 
-    def training_step(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def training_step(self, batch, batch_idx):
         """
         Performs one training step
 
@@ -168,7 +167,7 @@ class TrainCLIP(pl.LightningModule):
         -------
         out : torch.Tensor
         """
-        output = self.common_step(batch)
+        output = self.common_step(batch, batch_idx, calling_function='training')
 
         total_loss = output['loss']
 
@@ -179,7 +178,7 @@ class TrainCLIP(pl.LightningModule):
 
         return total_loss
 
-    def validation_step(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def validation_step(self, batch, batch_idx):
         """
         Performs one validation step
 
@@ -192,7 +191,7 @@ class TrainCLIP(pl.LightningModule):
         -------
         out : torch.Tensor
         """
-        output = self.common_step(batch)
+        output = self.common_step(batch, batch_idx, calling_function='validation')
 
         total_loss = output['loss']
 
@@ -203,7 +202,7 @@ class TrainCLIP(pl.LightningModule):
 
         return total_loss
 
-    def test_step(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def test_step(self, batch, batch_idx, dataloader_idx):
         """
         Performs test step
 
@@ -216,10 +215,20 @@ class TrainCLIP(pl.LightningModule):
         -------
         out : Dict[str, torch.Tensor]
         """
-        output = self.common_step(batch)
+        prefix_map = {
+            0: 'dev',
+            1: 'test'
+        }
+        prefix = prefix_map[dataloader_idx]
+        if dataloader_idx == 0:
+            calling_function = 'validation'
+        elif dataloader_idx == 1:
+            calling_function = 'training'
 
-        self.log(f'accuracy', output['accuracy'])
-        self.log(f'auroc', output['auroc'])
+        output = self.common_step(batch, batch_idx, calling_function=calling_function)
+
+        self.log(f'{prefix}/accuracy', output['accuracy'])
+        self.log(f'{prefix}/auroc', output['auroc'])
 
         return output
 
@@ -263,3 +272,5 @@ class TrainCLIP(pl.LightningModule):
         optimizer = torch.optim.AdamW(param_dicts, lr=self.lr, weight_decay=self.weight_decay)
 
         return optimizer
+
+
