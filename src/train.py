@@ -12,6 +12,7 @@ class TrainCLIP(pl.LightningModule):
     """
     A module that trains and evaluates CLIP model with a specific pipeline
     """
+
     def __init__(self, args):
         """
         Initialize the TrainCLIP Class for Training
@@ -272,5 +273,3 @@ class TrainCLIP(pl.LightningModule):
         optimizer = torch.optim.AdamW(param_dicts, lr=self.lr, weight_decay=self.weight_decay)
 
         return optimizer
-
-

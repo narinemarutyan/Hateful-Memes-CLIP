@@ -6,6 +6,7 @@ class Caller(object):
     """
     A class to preprocess images and texts using CLIP models for a given batch
     """
+
     def __init__(self, args):
         """
         Initialize the Caller Class

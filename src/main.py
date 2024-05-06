@@ -20,11 +20,11 @@ def main(args):
                                         image_size=args.image_size)
     dataset_val = HatefulMemesDataset(image_path=args.image_path,
                                       csv_path=args.csv_path,
-                                      split='train',
+                                      split='val',
                                       image_size=args.image_size)
     dataset_test = HatefulMemesDataset(image_path=args.image_path,
                                        csv_path=args.csv_path,
-                                       split='train',
+                                       split='test',
                                        image_size=args.image_size)
 
     # Load dataloader
