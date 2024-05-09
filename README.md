@@ -54,7 +54,7 @@ python ofa.py --json_dir  path/to/labels
                   --saved_csv_path  path/to/saved/data.csv
                   -ofa_checkpoint  path/to/ofa_checkpoint.pt
 ```
-if you want to caption the image run above code
+if you want to caption the image with OFA
 
 
 ### BLIP
