@@ -1,8 +1,10 @@
-import os
 import argparse
-from PIL import Image
+import os
+
 import pandas as pd
+from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
+
 
 def generate_captions(json_dir, img_folder):
     splits = ['train', 'dev', 'test']
@@ -37,6 +39,7 @@ def generate_captions(json_dir, img_folder):
     df[float_cols] = df.select_dtypes(include=[float]).astype('Int64')
     df.to_csv("data.csv")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Generate captions for images in a dataset")
     parser.add_argument("--json_dir", type=str, default="/path/to/json/directory",
@@ -47,9 +50,7 @@ def main():
 
     generate_captions(args.json_dir, args.img_folder)
 
+
 if __name__ == "__main__":
     main()
-#python blip.py --json_dir /path/to/json --img_folder /path/to/image/folder
-
-
 

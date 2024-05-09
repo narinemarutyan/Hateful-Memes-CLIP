@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -17,7 +18,6 @@ def main(args):
                                         split='train', image_size=args.image_size)
     dataset_val = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder='data/hateful_memes/img',
                                       split='dev', image_size=args.image_size)
-
 
     # Load dataloader
     num_cpus = 1

@@ -21,6 +21,7 @@ wandb = "^0.17.0"
 [tool.poetry.group.dev.dependencies]
 fairseq = "^0.12.2"
 torchvision = "^0.18.0"
+opencv-python = "^4.9.0.80"
 
 [build-system]
 requires = ["poetry-core"]

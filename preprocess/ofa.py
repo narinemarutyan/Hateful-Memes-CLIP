@@ -1,14 +1,15 @@
 import os
-import torch
+
 import numpy as np
 import pandas as pd
-from fairseq import utils, tasks
-from fairseq import checkpoint_utils
-from utils.eval_utils import eval_step
-from tasks.mm_tasks.caption import CaptionTask
+import torch
 from PIL import Image
-from tqdm.auto import tqdm
+from fairseq import checkpoint_utils
+from fairseq import utils, tasks
+from tasks.mm_tasks.caption import CaptionTask
 from torchvision import transforms
+from tqdm.auto import tqdm
+from utils.eval_utils import eval_step
 
 
 def generate_captions(json_dir, img_folder, save_csv, ofa_checkpoint):
@@ -126,9 +127,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     generate_captions(args.json_dir, args.img_folder, args.saved_csv_path, args.ofa_checkpoint)
-# python ofa.py --json_dir /path/to/json --img_folder /path/to/images --saved_csv_path /path/to/output.csv --ofa_checkpoint /path/to/checkpoint.pt
-
-
-#                             --img_folder /home/narine/Hateful-Memes-CLIP/data/hateful_memes/img\
-#                             --saved_csv_path /home/narine/Hateful-Memes-CLIP/preprocess/hateful_memes_expanded_org.csv \
-#                             --ofa_checkpoint /home/narine/Hateful-Memes-CLIP/preprocess/checkpoints/caption.pt

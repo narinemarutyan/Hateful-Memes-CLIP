@@ -1,4 +1,5 @@
 import os
+
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
@@ -8,6 +9,7 @@ class HatefulMemesDataset(Dataset):
     """
     A dataset class for loading and transforming the Hateful Memes dataset
     """
+
     def __init__(self, root_folder, image_folder, split='train', image_size=224):
         """
         Initializes the Hateful Memes Dataset

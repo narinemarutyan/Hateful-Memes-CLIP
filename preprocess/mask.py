@@ -1,20 +1,13 @@
 import os
-import numpy as np
-import cv2
-from imutils.object_detection import non_max_suppression
 from multiprocessing import Pool
+
+import cv2
+import numpy as np
 from tqdm.auto import tqdm
 
 """
 src: https://pyimagesearch.com/2018/08/20/opencv-text-detection-east-text-detector/
 """
-# source_dir = '/home/narine/Hateful-Memes-CLIP/data/hateful_memes/img'
-# target_dir_masked = '/home/narine/Hateful-Memes-CLIP/preprocess/img_masked'
-# east_path = '/home/narine/Hateful-Memes-CLIP/preprocess/frozen_east_text_detection.pb'
-# width = 320
-# height = 320
-# min_confidence = 0.5
-# img_fns = [x for x in os.listdir(source_dir) if x.endswith('.png')]
 
 
 def transform(img_fp, net, width, height, min_confidence, layerNames):
@@ -26,7 +19,7 @@ def transform(img_fp, net, width, height, min_confidence, layerNames):
     (H, W) = image.shape[:2]
 
     blob = cv2.dnn.blobFromImage(image, 1.0, (W, H),
-        (123.68, 116.78, 103.94), swapRB=True, crop=False)
+                                 (123.68, 116.78, 103.94), swapRB=True, crop=False)
     net.setInput(blob)
     (scores, geometry) = net.forward(layerNames)
 
@@ -60,8 +53,6 @@ def transform(img_fp, net, width, height, min_confidence, layerNames):
             rects.append((startX, startY, endX, endY))
             confidences.append(scoresData[x])
 
-
-
     return masked
 
 
@@ -71,7 +62,10 @@ def save(img_fn, source_dir, target_dir_masked, net, width, height, min_confiden
     img_masked, img_inpainted = transform(img_fp)
     cv2.imwrite(img_fp_masked, img_masked)
 
+
 import argparse
+
+
 def main():
     parser = argparse.ArgumentParser(description="Text detection and image inpainting")
     parser.add_argument("--source_dir", type=str, required=True, help="Directory containing the images to process")
@@ -82,12 +76,12 @@ def main():
     parser.add_argument("--min_confidence", type=float, default=0.5, help="Minimum confidence for detecting text")
     args = parser.parse_args()
 
-
     net = cv2.dnn.readNet(args.east_path)
     layerNames = ["feature_fusion/Conv_7/Sigmoid", "feature_fusion/concat_3"]
 
     img_fns = [x for x in os.listdir(args.source_dir) if x.endswith('.png')]
-    tasks = [(fn, args.source_dir, args.target_dir_masked, args.target_dir_inpainted, net, args.width, args.height, args.min_confidence, layerNames) for fn in img_fns]
+    tasks = [(fn, args.source_dir, args.target_dir_masked, args.target_dir_inpainted, net, args.width, args.height,
+              args.min_confidence, layerNames) for fn in img_fns]
 
     with Pool(64) as pool:
         list(tqdm(pool.imap_unordered(lambda p: save(*p), tasks), total=len(tasks)))
@@ -95,9 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-#python3 main.py --source_dir /home/narine/Hateful-Memes-CLIP/data/hateful_memes/img \
-                         # --target_dir_masked /home/narine/Hateful-Memes-CLIP/preprocess/img_masked \
-                         # --east_path /home/narine/Hateful-Memes-CLIP/preprocess/frozen_east_text_detection.pb \
-                         # --width 320 --height 320 --min_confidence 0.5

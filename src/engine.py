@@ -1,4 +1,5 @@
 import copy
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -11,6 +12,7 @@ class TrainCLIP(pl.LightningModule):
     """
     A module that trains and evaluates CLIP model with a specific pipeline
     """
+
     def __init__(self, args):
         """
         Initialize the TrainCLIP Class for Training

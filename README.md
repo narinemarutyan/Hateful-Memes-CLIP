@@ -31,6 +31,7 @@ The Structure Of The Data Should Look Like This:
             └── 
         └──data.csv
 ```
+The data can be downloaded via this link https://www.kaggle.com/datasets/parthplc/facebook-hateful-meme-dataset , the annotations are in json format. Use our preprocessing scripts to make it CSV
 
 ## Preprocessing
 
