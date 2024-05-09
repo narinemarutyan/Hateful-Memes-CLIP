@@ -47,7 +47,7 @@ class Caller(object):
         labels = torch.LongTensor([item['label'] for item in batch])
 
         new_batch = {}
-        new_batch['pixel_values'] = pixel_values,
+        new_batch['pixel_values'] = pixel_values
         new_batch['input_ids'] = text_output['input_ids']
         new_batch['attention_mask'] = text_output['attention_mask']
 
