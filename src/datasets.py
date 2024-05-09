@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
@@ -15,10 +14,10 @@ class HatefulMemesDataset(Dataset):
 
         Parameters
         ----------
-        image_path : str
+        image_folder : str
             The directory where images are stored
-        csv_path : str
-            The path to the CSV file containing the dataset's metadata
+        root_folder : str
+            The directory where CSV file is 
         split : str
             The dataset split like train, val or test
         image_size : Optional[int] = 224
@@ -33,7 +32,7 @@ class HatefulMemesDataset(Dataset):
         self.image_folder = image_folder
         self.split = split
         self.image_size = image_size
-        self.info_file = os.path.join(root_folder, 'hateful_memes_expanded_ofa.csv')
+        self.info_file = os.path.join(root_folder, 'blip_masked.csv')
         self.df = pd.read_csv(self.info_file)
         self.df = self.df[self.df['split'] == self.split].reset_index(drop=True)
 
@@ -65,8 +64,8 @@ class HatefulMemesDataset(Dataset):
         image_fn = row['img'].split('/')[1]
         sample['image'] = Image.open(f"{self.image_folder}/{image_fn}").convert('RGB').resize(
             (self.image_size, self.image_size))
-        sample['text'] = row['text']
+        sample['text'] = str(row['text'])
         sample['label'] = row['label']
-        sample['caption'] = row['caption']
+        sample['caption'] = str(row['caption'])
 
         return sample
