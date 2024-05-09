@@ -67,5 +67,5 @@ if you want to caption the image with blip
 ## Fine Tuning CLIP
 Example of command
 ```bash
-python -m src.main  --image_size 224 --max_epochs -1 --batch_size 120 --lr 1e-4
+python -m src.main  --image_size 224 --max_epochs -1 --batch_size 128 --lr 1e-4
 ```
