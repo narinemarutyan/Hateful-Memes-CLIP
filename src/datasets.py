@@ -32,7 +32,7 @@ class HatefulMemesDataset(Dataset):
         self.image_folder = image_folder
         self.split = split
         self.image_size = image_size
-        self.info_file = os.path.join(root_folder, 'blip_masked.csv')
+        self.info_file = os.path.join(root_folder, 'data.csv')
         self.df = pd.read_csv(self.info_file)
         self.df = self.df[self.df['split'] == self.split].reset_index(drop=True)
 
