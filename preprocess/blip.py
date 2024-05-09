@@ -35,7 +35,7 @@ def generate_captions(json_dir, img_folder):
     df['caption'] = captions
     float_cols = df.select_dtypes(include=[float]).columns
     df[float_cols] = df.select_dtypes(include=[float]).astype('Int64')
-    df.to_csv("hateful_memes_expanded_blip.csv")
+    df.to_csv("data.csv")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate captions for images in a dataset")
