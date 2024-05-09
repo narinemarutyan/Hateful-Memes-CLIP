@@ -1,5 +1,4 @@
 import copy
-
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -96,19 +95,17 @@ class TrainCLIP(pl.LightningModule):
         -------
         out : torch.Tensor
         """
-        image_features = self.text_encoder(input_ids=batch['input_ids_caption'],
-                                           attention_mask=batch['attention_mask_caption']).pooler_output
-        image_features = self.text_map(image_features)
+        image_features = self.image_encoder(pixel_values=batch['pixel_values']).pooler_output
+        image_features = self.image_map(image_features)
 
         text_features = self.text_encoder(input_ids=batch['input_ids'],
                                           attention_mask=batch['attention_mask']).pooler_output
-
         text_features = self.text_map(text_features)
 
-        image_features = F.normalize(image_features, p=2, dim=1)  # [batch_size, d]
-        text_features = F.normalize(text_features, p=2, dim=1)  # [batch_size, d]
+        image_features = F.normalize(image_features, p=2, dim=1)  # Normalize the image features
+        text_features = F.normalize(text_features, p=2, dim=1)  # Normalize the text features
 
-        features = torch.mul(image_features, text_features)  # [batch_size, d]
+        features = torch.mul(image_features, text_features)  # Element-wise multiplication of features
 
         features = self.pre_output(features)
         logits = self.output(features)
@@ -129,9 +126,8 @@ class TrainCLIP(pl.LightningModule):
         -------
         out : Dict[str, torch.Tensor]
         """
-        image_features = self.text_encoder(input_ids=batch['input_ids_caption'],
-                                           attention_mask=batch['attention_mask_caption']).pooler_output
-        image_features = self.text_map(image_features)
+        image_features = self.image_encoder(pixel_values=batch['pixel_values']).pooler_output
+        image_features = self.image_map(image_features)
         text_features = self.text_encoder(input_ids=batch['input_ids'],
                                           attention_mask=batch['attention_mask']).pooler_output
         text_features = self.text_map(text_features)
