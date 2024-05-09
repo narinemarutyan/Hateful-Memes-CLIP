@@ -27,9 +27,8 @@ poetry install --with dev
 ```
 ## Preprocessing
 
-### Preprocessing format
 
-#### Masked 
+### Masked 
 <img src='readme_images/org_masked.png' width=900> 
 
 ```bash
