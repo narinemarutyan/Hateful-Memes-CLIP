@@ -49,7 +49,7 @@ The structure to make the JSON labels to CSV with captions:
 ```bash
  git clone https://github.com/OFA-Sys/OFA.git
  mv preprocess/caption.py OFA
-python caption.py --json_dir  path/to/labels
+python ofa.py --json_dir  path/to/labels
                   --img_folder path/to/img
                   --saved_csv_path  path/to/saved/data.csv
                   -ofa_checkpoint  path/to/ofa_checkpoint.pt
