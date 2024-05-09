@@ -41,8 +41,6 @@ poetry install --with dev
 if you want to make the image masked  
 
 ### OFA-sys
-#### Captioning
-
 The structure to make the JSON labels to CSV with captions:
 ```
 └──OFA
@@ -58,6 +56,13 @@ python caption.py --json_dir  path/to/labels
 ```
 if you want to caption the image run above code
 
+
+### BLIP
+
+```bash
+python blip.py --json_dir /path/to/json --img_folder /path/to/image/folder
+```
+if you want to caption the image with blip
 
 ## Fine Tuning CLIP
 Example of command
