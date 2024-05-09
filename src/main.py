@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -18,8 +17,8 @@ def main(args):
                                         split='train', image_size=args.image_size)
     dataset_val = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder='data/hateful_memes/img',
                                       split='dev', image_size=args.image_size)
-    dataset_test = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder='data/hateful_memes/img',
-                                       split='test', image_size=args.image_size)
+    # dataset_test = HatefulMemesDataset(root_folder='data/hateful_memes', image_folder='data/hateful_memes/img',
+    #                                    split='test', image_size=args.image_size)
 
     # Load dataloader
     num_cpus = 1
@@ -27,7 +26,7 @@ def main(args):
     dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=num_cpus,
                                   collate_fn=collator)
     dataloader_val = DataLoader(dataset_val, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
-    dataloader_test = DataLoader(dataset_test, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
+    # dataloader_test = DataLoader(dataset_test, batch_size=args.batch_size, num_workers=num_cpus, collate_fn=collator)
 
     # Create model
     seed_everything(28, workers=True)
@@ -51,7 +50,7 @@ def main(args):
     # Train and test the model
     model.compute_fine_grained_metrics = True
     trainer.fit(model, train_dataloaders=dataloader_train, val_dataloaders=dataloader_val)
-    trainer.test(ckpt_path='best', dataloaders=[dataloader_val, dataloader_test])
+    # trainer.test(ckpt_path='best', dataloaders=[dataloader_val, dataloader_test])
 
 
 if __name__ == '__main__':
