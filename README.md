@@ -44,11 +44,12 @@ if you want to make the image masked
 The structure to make the JSON labels to CSV with captions:
 ```
 └──OFA
-    └─caption.py 
+    └─ofa.py
+    └── 
 ```
 ```bash
  git clone https://github.com/OFA-Sys/OFA.git
- mv preprocess/caption.py OFA
+ mv preprocess/ofa.py OFA
 python ofa.py --json_dir  path/to/labels
                   --img_folder path/to/img
                   --saved_csv_path  path/to/saved/data.csv
