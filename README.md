@@ -12,7 +12,7 @@ The Structure Of The Data Should Look Like This:
             ├── 1254.png
             ├── 1377.png
             └── 
-        └──hateful_memes_expanded.csv
+        └──data.csv
 ```
 
 ## Setup 
@@ -25,14 +25,42 @@ If you want to do the preprocessing you should install dev dependencies as well 
 ```bash
 poetry install --with dev
 ```
-
 ## Preprocessing
 
+### Preprocessing format
+
+#### Masked 
+<img src='readme_images/org_masked.png' width=900> 
+
+```bash
+ python masked.py --json_dir /path/to/label/json 
+                  --img_folder /path/to/images 
+                  --saved_csv_path /path/to/output.csv 
+                  --ofa_checkpoint /path/to/checkpoint.pt
+```
+if you want to make the image masked  
+
 ### OFA-sys
+#### Captioning
+
+The structure to make the JSON labels to CSV with captions:
+```
+└──OFA
+    └─caption.py 
+```
+```bash
+ git clone https://github.com/OFA-Sys/OFA.git
+ mv preprocess/caption.py OFA
+python caption.py --json_dir  path/to/labels
+                  --img_folder path/to/img
+                  --saved_csv_path  path/to/saved/data.csv
+                  -ofa_checkpoint  path/to/ofa_checkpoint.pt
+```
+if you want to caption the image run above code
 
 
 ## Fine Tuning CLIP
 Example of command
 ```bash
-python -m src__.main --image_path data/hateful_memes/img --csv_path data/hateful_memes/hateful_memes_expanded_ofa.csv --image_size 224 --max_epochs -1 --batch_size 9 --lr 1e-4
+python -m src.main  --image_size 224 --max_epochs -1 --batch_size 120 --lr 1e-4
 ```
