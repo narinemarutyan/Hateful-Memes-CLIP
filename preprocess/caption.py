@@ -126,9 +126,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     generate_captions(args.json_dir, args.img_folder, args.saved_csv_path, args.ofa_checkpoint)
-# python caption.py --json_dir /path/to/json --img_folder /path/to/images --saved_csv_path /path/to/output.csv --ofa_checkpoint /path/to/checkpoint.pt
-
-# python3  main.py --json_dir /home/narine/Hateful-Memes-CLIP/preprocess/labels\
-#                             --img_folder /home/narine/Hateful-Memes-CLIP/data/hateful_memes/img\
-#                             --saved_csv_path /home/narine/Hateful-Memes-CLIP/preprocess/hateful_memes_expanded_org.csv \
-#                             --ofa_checkpoint /home/narine/Hateful-Memes-CLIP/preprocess/checkpoints/caption.pt
+# python caption.py --json_dir /path/to/json --img_folder /path/to/images --saved_csv_path /path/to/data.csv --ofa_checkpoint /path/to/checkpoint.pt
