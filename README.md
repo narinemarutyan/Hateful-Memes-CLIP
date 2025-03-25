@@ -4,6 +4,8 @@
 
 This repository contains the code and resources for the project "The Hateful Memes Challenge: Detecting Hate Speech in Multimodal Memes." This project addresses the significant challenge of detecting hate speech within multimodal content, specifically within memes that combine text and images. Our approach leverages the capabilities of vision-text models, mainly focusing on using CLIP (Contrastive Language–Image Pre-training) to discern hateful content in a dataset that requires both visual and textual understanding to classify effectively. The repository includes scripts for training a small network fed with CLIP embeddings, preprocessing data, and evaluating the performance of our methods on a diverse set of memes.
 
+Paper can be found: https://cse.aua.am/files/2024/05/The-Hateful-Memes-Challenge-Detecting-Hate-Speech-in-Multi-Modal-Memes.pdf
+
 <img src='readme_images/architecture.png' width=600> 
 
 Above you can see the architecture of the model.
